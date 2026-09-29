@@ -1,21 +1,23 @@
 # Sequential Models for Swahili News Classification
 
+**Formative Assignment 2: NLP and Language Technologies**
+
 **Research question:** How effectively can sequential modelling approaches classify Swahili news articles into topics, and what evidence supports the strengths and limitations of each approach?
 
 We compare five approaches on the [Swahili News Classification Challenge](https://zindi.world/competitions/swahili-news-classification-challenge) dataset (5,151 Tanzanian news articles, five categories): two bag-of-words baselines (TF-IDF with Logistic Regression and with Naive Bayes) and three neural models that read the article as a sequence (a 1D CNN, a bidirectional LSTM, and fine-tuned AfriBERTa).
 
 ## Abstract
 
-Swahili is spoken by more than 100 million people but has few labelled datasets. We study topic classification of Swahili news, a task with severe class imbalance (the smallest class has 17 of 5,151 articles), long articles (26.5% exceed the 512-token limit of pretrained transformers), rich morphology (53.5% of word forms occur only once) and some label noise between national and business news. Using a fixed stratified split, macro-F1 with bootstrap confidence intervals, and a logged series of experiments per model, we compare bag-of-words baselines with a CNN, a BiLSTM and AfriBERTa. The best baseline (TF-IDF + Logistic Regression) reaches 0.874 accuracy but only 0.633 macro-F1, because it never recognises the entertainment class. _[Add the neural results and the main conclusion after running `03_neural_models.ipynb`.]_
+Swahili is spoken by more than 100 million people but has few labelled datasets. We study topic classification of Swahili news, a task with severe class imbalance (the smallest class has 17 of 5,151 articles), long articles (26.5% exceed the 512-token limit of pretrained transformers), rich morphology (53.5% of word forms occur only once) and some label noise between national and business news. Using a fixed stratified split, macro-F1 with bootstrap confidence intervals, and a logged series of experiments per model, we compare bag-of-words baselines with a CNN, a BiLSTM and AfriBERTa. The best baseline (TF-IDF + Logistic Regression) reaches 0.874 accuracy but only 0.633 macro-F1, because it never recognises the entertainment class. The CNN (0.521) and BiLSTM (0.578), trained from scratch, do not beat this baseline, while fine-tuned AfriBERTa reaches 0.782 macro-F1 and 0.921 accuracy and is the only model that recognises both small classes. On this task, the benefit of sequential modelling comes from pretraining on African-language text rather than from the architecture alone; the remaining errors are dominated by inconsistent labels between national and business news.
 
 ## Team
 
 | Member | Contribution | Where |
 |---|---|---|
-| _name_ | Data analysis, TF-IDF + Logistic Regression, TF-IDF + Naive Bayes | `01`, `02` |
-| _name_ | 1D CNN | `03`, Section 2 |
-| _name_ | Bidirectional LSTM | `03`, Section 3 |
-| _name_ | Fine-tuned AfriBERTa | `03`, Section 4 |
+| Mahlet Assefa Tilahun | Approach 1: TF-IDF + Logistic Regression | `02`, Section 2 |
+| Tedla Tesfaye Godebo | Approach 2: TF-IDF + Naive Bayes | `02`, Section 3 |
+| Carla Lisa Batoni | Approach 3: 1D CNN; comparison of all five approaches | `03`, Sections 2 and 5 |
+| Mukunzi Ndahiro James | Approaches 4 and 5: Bidirectional LSTM, fine-tuned AfriBERTa; error analysis | `03`, Sections 3, 4 and 6 |
 
 Contribution tracker: _[link]_ · Report (PDF): _[link]_ · Demo video: _[link]_
 
@@ -44,14 +46,14 @@ Contribution tracker: _[link]_ · Report (PDF): _[link]_ · Demo video: _[link]_
 
 ### Google Colab (recommended)
 
-| Notebook | Runtime | Open |
-|---|---|---|
-| 01 Data investigation and model selection | CPU | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mukunzindahiro-max/formativeII-NLP/blob/main/notebooks/01_eda_and_model_selection.ipynb) |
-| 02 Baselines | CPU | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mukunzindahiro-max/formativeII-NLP/blob/main/notebooks/02_baselines.ipynb) |
-| 03 Neural models and comparison | **T4 GPU** | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mukunzindahiro-max/formativeII-NLP/blob/main/notebooks/03_neural_models.ipynb) |
+| Notebook | Runtime |
+|---|---|
+| `01_eda_and_model_selection.ipynb` | CPU |
+| `02_baselines.ipynb` | CPU |
+| `03_neural_models.ipynb` | **T4 GPU** |
 
 1. Download `Train.csv` and `Test.csv` from the [Zindi data page](https://zindi.world/competitions/swahili-news-classification-challenge/data) (free account required).
-2. Open a notebook with the badge above and run the first cell. It clones this repository and asks you to upload the two CSV files.
+2. In Colab, choose *File → Open notebook → GitHub*, open the notebook from this repository, and run the first cell. It clones this repository and asks you to upload the two CSV files.
 3. Run the notebooks in order: `03` compares against the results saved by `02`. Because Colab sessions are separate, either run `02` and `03` in the same session, or commit the `results/` files from `02` before opening `03`.
 
 ### Locally
@@ -83,9 +85,11 @@ Validation set (1,030 articles). Full per-class results are in `results/*_metric
 |---|---|---|---|---|
 | TF-IDF + Logistic Regression | 0.633 (0.561-0.684) | 0.879 | 0.874 | 0.457 |
 | TF-IDF + Naive Bayes | 0.621 (0.538-0.680) | 0.858 | 0.852 | 0.526 |
-| 1D CNN | _run notebook 03_ | | | |
-| BiLSTM | _run notebook 03_ | | | |
-| AfriBERTa | _run notebook 03_ | | | |
+| 1D CNN | 0.521 (0.508-0.533) | 0.868 | 0.862 | 0.406 |
+| BiLSTM | 0.578 (0.494-0.666) | 0.834 | 0.828 | 0.549 |
+| **AfriBERTa** | **0.782 (0.641-0.889)** | **0.925** | **0.921** | **0.392** |
+
+Fine-tuned AfriBERTa is significantly better than every other approach (McNemar's test, p < 0.0001). The CNN and BiLSTM trained from scratch do not beat the TF-IDF + LR baseline.
 
 ## Data
 
