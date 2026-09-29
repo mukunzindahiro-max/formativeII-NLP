@@ -1,0 +1,11 @@
+model,experiment,change,selection_macro_f1,val_macro_f1,val_macro_f1_major,val_accuracy,val_log_loss,train_time_s
+tfidf_logreg,lr_unigram,"unigrams, balanced class weights, best C=1",0.6503,0.6326,0.8789,0.8738,0.4575,22.0
+tfidf_logreg,lr_bigram,"unigrams + bigrams, balanced class weights, best C=0.1",0.6145,0.6278,0.8596,0.8534,1.0048,58.1
+tfidf_logreg,lr_unigram_unweighted,"unigrams, no class weights, best C=100",0.5515,0.5892,0.8794,0.8767,0.3801,20.8
+tfidf_nb,nb_multinomial,"multinomial NB, learned class prior, best alpha=0.01",0.541,0.543,0.8494,0.8447,0.5654,13.3
+tfidf_nb,nb_multinomial_uniform_prior,"multinomial NB, uniform class prior, best alpha=0.01",0.6419,0.6212,0.8576,0.8524,0.5264,13.4
+tfidf_nb,nb_complement,"Complement NB, best alpha=0.1",0.5134,0.5201,0.8669,0.8621,0.4841,13.2
+cnn,cnn_subword,"subword tokens, no class weights",0.5227,0.5285,0.8809,0.8767,0.3953,294.5
+cnn,cnn_subword_weighted,"subword tokens, sqrt-balanced class weights",0.5158,0.5218,0.8696,0.865,0.4458,229.9
+cnn,cnn_word_weighted,"word tokens (min count 2), sqrt-balanced class weights",0.5126,0.6105,0.8746,0.8728,0.4249,404.8
+bilstm,bilstm_last,"final hidden states, 512 tokens",0.761,0.5923,0.8317,0.8301,0.6383,16582.2
