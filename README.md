@@ -1,5 +1,18 @@
 # Sequential Models for Swahili News Classification
 
+![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-1.24%2B-013243?logo=numpy&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3%2B-F7931E?logo=scikitlearn&logoColor=white)
+![SciPy](https://img.shields.io/badge/SciPy-1.10%2B-8CAAE6?logo=scipy&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-3.7%2B-11557C)
+![seaborn](https://img.shields.io/badge/seaborn-0.12%2B-4C72B0)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.2%2B-EE4C2C?logo=pytorch&logoColor=white)
+![Transformers](https://img.shields.io/badge/Transformers-4.40%2B-FFD21E?logo=huggingface&logoColor=black)
+![SentencePiece](https://img.shields.io/badge/SentencePiece-0.1.99%2B-6A1B9A)
+![Protobuf](https://img.shields.io/badge/Protobuf-3.20%2B-00897B)
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
+
 **Formative Assignment 2: NLP and Language Technologies**
 
 **Research question:** How effectively can sequential modelling approaches classify Swahili news articles into topics, and what evidence supports the strengths and limitations of each approach?
@@ -55,6 +68,7 @@ Contribution tracker: _[link]_ · Report (PDF): _[link]_ · Demo video: _[link]_
 1. Download `Train.csv` and `Test.csv` from the [Zindi data page](https://zindi.world/competitions/swahili-news-classification-challenge/data) (free account required).
 2. In Colab, choose *File → Open notebook → GitHub*, open the notebook from this repository, and run the first cell. It clones this repository and asks you to upload the two CSV files.
 3. Run the notebooks in order: `03` compares against the results saved by `02`. Because Colab sessions are separate, either run `02` and `03` in the same session, or commit the `results/` files from `02` before opening `03`.
+4. In notebook `03`, choose *Runtime → Change runtime type → T4 GPU*. The CNN and BiLSTM take a few minutes each; each AfriBERTa experiment takes roughly 5-15 minutes on a T4. Each model section can be run on its own after Section 1, but Sections 5-6 need the result files of all five models in `results/`.
 
 ### Locally
 
@@ -79,7 +93,7 @@ Put `Train.csv` and `Test.csv` in `data/` before running. The neural notebook ru
 
 ## Results
 
-Validation set (1,030 articles). Full per-class results are in `results/*_metrics.json`, the experiment log is `results/experiments.csv`, and the final comparison table is written to `results/model_comparison.csv` by notebook 03.
+Validation set (1,030 articles), from the Colab T4 run shown in `03_neural_models.ipynb`. Running the notebooks writes the per-class results to `results/*_metrics.json`, the validation predictions to `results/*_val_predictions.csv`, the experiment log to `results/experiments.csv` and the final comparison table to `results/model_comparison.csv`. The committed `results/` folder contains the baseline and CNN files only; the BiLSTM and AfriBERTa files are created when notebook 03 is run.
 
 | Approach | Macro-F1 (95% CI) | Macro-F1, 3 large classes | Accuracy | Log loss |
 |---|---|---|---|---|
@@ -90,6 +104,20 @@ Validation set (1,030 articles). Full per-class results are in `results/*_metric
 | **AfriBERTa** | **0.782 (0.641-0.889)** | **0.925** | **0.921** | **0.392** |
 
 Fine-tuned AfriBERTa is significantly better than every other approach (McNemar's test, p < 0.0001). The CNN and BiLSTM trained from scratch do not beat the TF-IDF + LR baseline.
+
+### Experiments
+
+15 experiments were run, three per approach; the variant with the best selection score (cross-validation for the baselines, development macro-F1 for the neural models) is the one reported above.
+
+| Approach | Variants tested | Selection macro-F1 |
+|---|---|---|
+| TF-IDF + LR | unigrams with balanced weights · unigrams + bigrams · unigrams without class weights | 0.650 · 0.615 · 0.552 |
+| TF-IDF + NB | multinomial, learned prior · multinomial, uniform prior · Complement NB | 0.541 · 0.642 · 0.513 |
+| 1D CNN | subword tokens · subword tokens with class weights · word tokens with class weights | 0.518 · 0.524 · 0.501 |
+| BiLSTM | last hidden states, 512 tokens · attention pooling, 512 tokens · last hidden states, first 256 tokens | 0.742 · 0.519 · 0.766 |
+| AfriBERTa | first 510 tokens · first 510 tokens with class weights · first 128 + last 382 tokens | 0.844 · 0.836 · 0.829 |
+
+The development split has only 1 `Burudani` and 4 `Kimataifa` articles, so selection scores for the neural models are noisy.
 
 ## Data
 
